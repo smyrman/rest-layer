@@ -114,6 +114,12 @@ func validatorToJSONSchema(w io.Writer, v schema.FieldValidator) (err error) {
 		}
 	case *schema.Array:
 		ew.writeString(`"type": "array"`)
+		if t.MinLen > 0 {
+			ew.writeFormat(`, "minItems": %s`, strconv.FormatInt(int64(t.MinLen), 10))
+		}
+		if t.MaxLen > 0 {
+			ew.writeFormat(`, "maxItems": %s`, strconv.FormatInt(int64(t.MaxLen), 10))
+		}
 		if t.ValuesValidator != nil {
 			ew.writeString(`, "items": {`)
 			if ew.err == nil {
@@ -122,6 +128,12 @@ func validatorToJSONSchema(w io.Writer, v schema.FieldValidator) (err error) {
 			ew.writeString("}")
 		}
 	case *schema.Object:
+		if t.Schema.MinLen > 0 {
+			ew.writeFormat(`, "minProperties": %s`, strconv.FormatInt(int64(t.Schema.MinLen), 10))
+		}
+		if t.Schema.MaxLen > 0 {
+			ew.writeFormat(`, "maxProperties": %s`, strconv.FormatInt(int64(t.Schema.MaxLen), 10))
+		}
 		if ew.err == nil && t.Schema != nil {
 			ew.err = schemaToJSONSchema(w, t.Schema)
 		}
